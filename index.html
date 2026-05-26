@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>振込金額の相違理由入力</title>
+    <!-- Google Fonts for Modern Typography -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #FF9900;
+            --primary-hover: #E68A00;
+            --bg-color: #F8FAFC;
+            --text-main: #1E293B;
+            --text-muted: #64748B;
+            --card-bg: rgba(255, 255, 255, 0.95);
+            --border: #E2E8F0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #FFF3E0 0%, #F8FAFC 100%);
+            color: var(--text-main);
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 400px;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .glass-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            border-radius: 20px;
+            padding: 30px 25px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+            animation: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .header-icon {
+            background: #FFF3E0;
+            color: var(--primary);
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 15px;
+            font-size: 28px;
+        }
+
+        h1 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin: 0 0 8px;
+            color: var(--text-main);
+        }
+
+        .subtitle {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            line-height: 1.5;
+            margin: 0;
+        }
+
+        .info-box {
+            background: #F1F5F9;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .info-label {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+
+        .info-value {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: var(--text-main);
+        }
+
+        textarea {
+            width: 100%;
+            height: 120px;
+            padding: 15px;
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            font-family: inherit;
+            font-size: 0.95rem;
+            resize: none;
+            box-sizing: border-box;
+            transition: all 0.3s ease;
+            background: #fff;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(255, 153, 0, 0.1);
+        }
+
+        .btn-submit {
+            width: 100%;
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 16px;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(255, 153, 0, 0.2);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .btn-submit:active {
+            transform: scale(0.98);
+        }
+
+        .btn-submit:disabled {
+            background: #CBD5E1;
+            box-shadow: none;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .loading-spinner {
+            border: 3px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top: 3px solid white;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+            display: none;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Full Screen Loader */
+        #pageLoader {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: var(--bg-color);
+            z-index: 9999;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+        
+        .dots {
+            display: flex;
+            gap: 8px;
+        }
+
+        .dot {
+            width: 12px;
+            height: 12px;
+            background: var(--primary);
+            border-radius: 50%;
+            animation: bounce 0.5s alternate infinite ease;
+        }
+        .dot:nth-child(2) { animation-delay: 0.1s; }
+        .dot:nth-child(3) { animation-delay: 0.2s; }
+
+        @keyframes bounce {
+            from { transform: translateY(0); }
+            to { transform: translateY(-10px); }
+        }
+
+    </style>
+</head>
+<body>
+
+    <!-- Loading Screen -->
+    <div id="pageLoader">
+        <div class="dots">
+            <div class="dot"></div>
+            <div class="dot"></div>
+            <div class="dot"></div>
+        </div>
+        <p style="margin-top: 20px; color: var(--text-muted); font-weight: 500;">読み込み中...</p>
+    </div>
+
+    <div class="container">
+        <div class="glass-card">
+            <div class="header">
+                <div class="header-icon">⚠️</div>
+                <h1>振込金額の相違理由</h1>
+                <p class="subtitle">内容を確認し、不足または相違している金額や項目をお知らせください。</p>
+            </div>
+
+            <div class="info-box">
+                <div>
+                    <div class="info-label">対象拠点</div>
+                    <div class="info-value" id="displaySiteName">--</div>
+                </div>
+                <div style="text-align: right;">
+                    <div class="info-label">対象月</div>
+                    <div class="info-value" id="displayMonth">--</div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="reasonInput">相違の理由（具体的に）</label>
+                <textarea id="reasonInput" placeholder="例：10月15日の食材費（3,000円）が抜けています。確認をお願いします。"></textarea>
+            </div>
+
+            <button class="btn-submit" id="submitBtn" onclick="submitReason()">
+                <span id="btnText">事務局へ送信する</span>
+                <div class="loading-spinner" id="btnSpinner"></div>
+            </button>
+        </div>
+    </div>
+
+    <!-- LIFF SDK -->
+    <script charset="utf-8" src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+    <script>
+        // LIFF IDとGASのエンドポイントを設定してください
+        const LIFF_ID = "YOUR_LIFF_ID"; 
+        const GAS_WEBAPP_URL = "YOUR_GAS_WEBAPP_URL"; 
+
+        let targetSiteName = "";
+        let targetMonth = "";
+
+        // URLパラメータから情報を取得
+        function getQueryParams() {
+            const params = new URLSearchParams(window.location.search);
+            targetSiteName = params.get('siteName') || "不明な拠点";
+            targetMonth = params.get('month') || "不明な月";
+
+            document.getElementById('displaySiteName').textContent = targetSiteName;
+            document.getElementById('displayMonth').textContent = targetMonth;
+        }
+
+        // LIFF初期化
+        async function initializeLiff() {
+            try {
+                if(LIFF_ID === "YOUR_LIFF_ID") {
+                    console.warn("LIFF IDが未設定ですがテストモードとして続行します");
+                    setTimeout(() => {
+                        document.getElementById('pageLoader').style.display = 'none';
+                    }, 500);
+                    return;
+                }
+                
+                await liff.init({ liffId: LIFF_ID });
+                if (!liff.isLoggedIn()) {
+                    liff.login();
+                } else {
+                    document.getElementById('pageLoader').style.display = 'none';
+                }
+            } catch (err) {
+                console.error('LIFF Initialization failed', err);
+                alert("LIFFの初期化に失敗しました。LINEアプリから再度お試しください。");
+                document.getElementById('pageLoader').style.display = 'none';
+            }
+        }
+
+        window.onload = () => {
+            getQueryParams();
+            initializeLiff();
+        };
+
+        // 理由の送信処理
+        async function submitReason() {
+            const reason = document.getElementById('reasonInput').value.trim();
+            if (!reason) {
+                alert("理由を入力してください。");
+                return;
+            }
+
+            const btn = document.getElementById('submitBtn');
+            const btnText = document.getElementById('btnText');
+            const spinner = document.getElementById('btnSpinner');
+
+            // ボタンをローディング状態に
+            btn.disabled = true;
+            btnText.style.display = 'none';
+            spinner.style.display = 'block';
+
+            try {
+                // 送信データ作成
+                const formData = new URLSearchParams();
+                formData.append('action', 'submit_ng_reason');
+                formData.append('siteName', targetSiteName);
+                formData.append('month', targetMonth);
+                formData.append('reason', reason);
+
+                // GASへPOSTリクエスト
+                const response = await fetch(GAS_WEBAPP_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: formData.toString()
+                });
+
+                const result = await response.json();
+                
+                if (result.status === "success") {
+                    alert("理由を送信しました。事務局からの連絡をお待ちください。");
+                    if (liff.isInClient()) {
+                        liff.closeWindow();
+                    }
+                } else {
+                    throw new Error(result.message || "送信に失敗しました");
+                }
+
+            } catch (error) {
+                console.error("Submit Error:", error);
+                alert("通信エラーが発生しました: " + error.message);
+                
+                // エラー時はボタンを元に戻す
+                btn.disabled = false;
+                btnText.style.display = 'block';
+                spinner.style.display = 'none';
+            }
+        }
+    </script>
+</body>
+</html>
